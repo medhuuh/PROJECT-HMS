@@ -20,6 +20,7 @@ function navigateTo(page) {
   document.getElementById('pageTitle').textContent = pageTitles[page] || page;
   if (page === 'reports') setTimeout(drawAllCharts, 100);
   if (page === 'dashboard') setTimeout(() => drawLineChart('revenueChart', revenueData, '#2ecc71'), 100);
+  if (page === 'bookings') setTimeout(renderGanttCalendar, 100);
 }
 
 document.querySelectorAll('.sidebar-item').forEach(item => {
@@ -155,7 +156,7 @@ function editService(id) {
 // ============ GUEST HISTORY ============
 const guestHistories = {
   '1': [{ booking: '#BK001', room: '101 - Deluxe', dates: '27 Feb – 01 Mar 2026', status: 'Confirmed' },
-        { booking: '#BK010', room: '205 - Suite', dates: '10 Jan – 14 Jan 2026', status: 'Checked-out' }],
+  { booking: '#BK010', room: '205 - Suite', dates: '10 Jan – 14 Jan 2026', status: 'Checked-out' }],
   '2': [{ booking: '#BK002', room: '205 - Suite', dates: '28 Feb – 03 Mar 2026', status: 'Pending' }],
   '3': [{ booking: '#BK003', room: '302 - Standard', dates: '25 Feb – 27 Feb 2026', status: 'Checked-in' }],
 };
@@ -171,7 +172,7 @@ function viewGuestHistory(guestId) {
     <div style="background:var(--bg);border-radius:var(--radius-sm);box-shadow:var(--shadow-raised-sm);padding:14px;margin-top:10px">
       <div style="display:flex;justify-content:space-between;margin-bottom:6px">
         <strong style="font-size:13px">${h.booking}</strong>
-        <span class="badge ${h.status==='Confirmed'?'badge-green':h.status==='Pending'?'badge-grey':h.status==='Checked-in'?'badge-outline-green':'badge-light'}">${h.status}</span>
+        <span class="badge ${h.status === 'Confirmed' ? 'badge-green' : h.status === 'Pending' ? 'badge-grey' : h.status === 'Checked-in' ? 'badge-outline-green' : 'badge-light'}">${h.status}</span>
       </div>
       <div style="font-size:12px;color:var(--text-secondary)">${h.room} &nbsp;•&nbsp; ${h.dates}</div>
     </div>
@@ -185,9 +186,9 @@ function processCheckout() { showToast('Guest checked out successfully!'); }
 function printReceipt() { showToast('Sending receipt to printer...'); closeModal('receipt-modal'); }
 
 // ============ BLACKLIST CONFIRM ============
-document.getElementById('confirm-blacklist')?.addEventListener('click', () => {});
+document.getElementById('confirm-blacklist')?.addEventListener('click', () => { });
 // Override the blacklist button
-(function() {
+(function () {
   const blBtn = document.querySelector('[onclick*="confirm-blacklist"]');
   if (blBtn) {
     blBtn.setAttribute('onclick', "confirmAction('Blacklist this guest? They will not be able to make future bookings.','blacklistGuest')");
@@ -329,6 +330,125 @@ function drawAllCharts() {
   drawLineChart('bookingReportChart', bookingData, '#3498db');
   drawBarChart('paymentReportChart', paymentData, '#2ecc71');
   drawBarChart('taxReportChart', taxData, '#e67e22');
+}
+
+// ============ GANTT CALENDAR ============
+const GANTT_DAYS = 14;
+let ganttStartDate = new Date(2026, 1, 24); // Feb 24, 2026
+
+const ganttRooms = [
+  { id: '101', name: 'Room 101', type: 'Deluxe', color: '#2ecc71' },
+  { id: '102', name: 'Room 102', type: 'Standard', color: '#3b82f6' },
+  { id: '108', name: 'Room 108', type: 'Deluxe', color: '#2ecc71' },
+  { id: '205', name: 'Room 205', type: 'Suite', color: '#8b5cf6' },
+  { id: '302', name: 'Room 302', type: 'Standard', color: '#3b82f6' },
+  { id: '410', name: 'Room 410', type: 'Suite', color: '#8b5cf6' },
+];
+
+const ganttBookings = [
+  { room: '101', guest: 'Rahul Sharma', start: '2026-02-27', end: '2026-03-01', status: 'confirmed' },
+  { room: '205', guest: 'Priya Patel', start: '2026-02-28', end: '2026-03-03', status: 'pending' },
+  { room: '302', guest: 'Amit Kumar', start: '2026-02-25', end: '2026-02-27', status: 'checked-in' },
+  { room: '108', guest: 'Sneha Reddy', start: '2026-02-20', end: '2026-02-24', status: 'checked-out' },
+  { room: '410', guest: 'Vikram Singh', start: '2026-02-26', end: '2026-02-28', status: 'cancelled' },
+  { room: '101', guest: 'Meera Nair', start: '2026-03-03', end: '2026-03-07', status: 'confirmed' },
+  { room: '102', guest: 'Arjun Das', start: '2026-02-24', end: '2026-02-28', status: 'checked-in' },
+  { room: '302', guest: 'Kavitha R.', start: '2026-02-28', end: '2026-03-02', status: 'pending' },
+  { room: '205', guest: 'Deepak Joshi', start: '2026-03-05', end: '2026-03-09', status: 'confirmed' },
+  { room: '108', guest: 'Ritu Verma', start: '2026-02-26', end: '2026-03-01', status: 'confirmed' },
+];
+
+function shiftCalendar(days) {
+  if (days === 0) {
+    ganttStartDate = new Date(2026, 1, 24);
+  } else {
+    ganttStartDate = new Date(ganttStartDate.getTime() + days * 86400000);
+  }
+  renderGanttCalendar();
+}
+
+function fmtShort(d) {
+  const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${m[d.getMonth()]} ${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function fmtDay(d) {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return days[d.getDay()];
+}
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function renderGanttCalendar() {
+  const wrapper = document.getElementById('ganttWrapper');
+  if (!wrapper) return;
+  const today = new Date(2026, 1, 27); // Feb 27, 2026
+
+  // Update date range label
+  const endDate = new Date(ganttStartDate.getTime() + (GANTT_DAYS - 1) * 86400000);
+  const rangeEl = document.getElementById('calendarDateRange');
+  if (rangeEl) rangeEl.textContent = `${fmtShort(ganttStartDate)} – ${fmtShort(endDate)}, ${ganttStartDate.getFullYear()}`;
+
+  // Build dates array
+  const dates = [];
+  for (let i = 0; i < GANTT_DAYS; i++) {
+    dates.push(new Date(ganttStartDate.getTime() + i * 86400000));
+  }
+
+  // Build HTML table
+  let html = `<table class="gantt-table"><thead><tr><th class="room-col">Room</th>`;
+  dates.forEach(d => {
+    const isToday = dateKey(d) === dateKey(today);
+    html += `<th${isToday ? ' class="today"' : ''}>${fmtDay(d)}<br>${d.getDate()}</th>`;
+  });
+  html += `</tr></thead><tbody>`;
+
+  ganttRooms.forEach((room, ri) => {
+    html += `<tr>`;
+    html += `<td class="room-label-cell"><span class="room-type-dot" style="background:${room.color}"></span>${room.name}<span class="room-type-label">${room.type}</span></td>`;
+    dates.forEach((d, ci) => {
+      const isToday = dateKey(d) === dateKey(today);
+      html += `<td data-room="${ri}" data-col="${ci}"${isToday ? ' class="today-col"' : ''}></td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  wrapper.innerHTML = html;
+
+  // Overlay booking bars
+  requestAnimationFrame(() => {
+    ganttRooms.forEach((room, ri) => {
+      const roomBookings = ganttBookings.filter(b => b.room === room.id);
+      roomBookings.forEach(booking => {
+        const bStart = new Date(booking.start + 'T00:00:00');
+        const bEnd = new Date(booking.end + 'T00:00:00');
+        const rangeStart = ganttStartDate;
+        const rangeEnd = new Date(ganttStartDate.getTime() + GANTT_DAYS * 86400000);
+        if (bEnd <= rangeStart || bStart >= rangeEnd) return;
+
+        const startCol = Math.max(0, Math.floor((bStart - rangeStart) / 86400000));
+        const endCol = Math.min(GANTT_DAYS - 1, Math.ceil((bEnd - rangeStart) / 86400000) - 1);
+        if (startCol > endCol) return;
+
+        const firstCell = wrapper.querySelector(`td[data-room="${ri}"][data-col="${startCol}"]`);
+        const lastCell = wrapper.querySelector(`td[data-room="${ri}"][data-col="${endCol}"]`);
+        if (!firstCell || !lastCell) return;
+
+        const firstRect = firstCell.getBoundingClientRect();
+        const lastRect = lastCell.getBoundingClientRect();
+        const barWidth = lastRect.right - firstRect.left - 4;
+
+        const bar = document.createElement('div');
+        bar.className = `gantt-bar ${booking.status}`;
+        bar.style.width = barWidth + 'px';
+        bar.innerHTML = `<span>${booking.guest}</span><div class="gantt-bar-tooltip">${booking.guest} • ${fmtShort(bStart)} – ${fmtShort(bEnd)} • ${booking.status}</div>`;
+        firstCell.appendChild(bar);
+      });
+    });
+  });
 }
 
 // ============ INIT ============
