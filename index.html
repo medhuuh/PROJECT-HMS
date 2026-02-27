@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookEasy — Hotel Management System</title>
+<meta name="description" content="BookEasy premium hotel management dashboard">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="logo/logo_secondary.png">
+</head>
+<body>
+<div class="app">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="sidebar-logo"><img src="logo/logo_primary.png" alt="BookEasy"><span>BookEasy</span></div>
+<div class="sidebar-label">Main Menu</div>
+<div class="sidebar-item active" data-page="dashboard"><span class="icon">📊</span>Dashboard</div>
+<div class="sidebar-item" data-page="bookings"><span class="icon">📅</span>Bookings</div>
+<div class="sidebar-item" data-page="rooms"><span class="icon">🏨</span>Rooms</div>
+<div class="sidebar-item" data-page="guests"><span class="icon">👤</span>Guests</div>
+<div class="sidebar-item" data-page="checkin"><span class="icon">🔄</span>Check-in / Check-out</div>
+<div class="sidebar-item" data-page="billing"><span class="icon">💳</span>Billing</div>
+<div class="sidebar-item" data-page="reports"><span class="icon">📈</span>Reports</div>
+<div class="sidebar-item" data-page="staff"><span class="icon">👥</span>Staff</div>
+<div class="sidebar-item" data-page="inventory"><span class="icon">📦</span>Inventory</div>
+<div class="sidebar-item" data-page="notifications"><span class="icon">🔔</span>Notifications</div>
+<div class="sidebar-item" data-page="settings"><span class="icon">⚙️</span>Settings</div>
+</aside>
+
+<div class="main">
+<!-- HEADER -->
+<header class="header">
+<div class="header-left"><h1 class="header-title" id="pageTitle">Dashboard</h1></div>
+<div class="search-field"><span class="search-icon">🔍</span><input type="text" placeholder="Search anything..."></div>
+<div class="header-right">
+<div class="header-icon" onclick="navigateTo('notifications')" title="Notifications">🔔</div>
+<div class="header-avatar"><img src="logo/logo_secondary.png" alt="Profile"></div>
+</div>
+</header>
+
+<div class="content">
+<!-- ========== 1. DASHBOARD ========== -->
+<section class="page-section active" id="page-dashboard">
+<div class="welcome-card"><div class="welcome-text"><h2>Hello, Admin 👋</h2><p>Welcome back to BookEasy! Here's your hotel overview for today.</p></div><div class="welcome-illustration">🏨</div></div>
+
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('booking-modal')">➕ New Booking</button><button class="btn btn-accent" onclick="openModal('room-modal')">🏨 Add Room</button></div>
+
+<div class="dashboard-grid">
+<div class="dashboard-main">
+<div class="grid-4">
+<div class="metric-card"><div class="metric-icon green">📅</div><div class="metric-label">Total Bookings</div><div class="metric-value green">142</div><div class="toggle-tabs"><span class="toggle-tab active" onclick="toggleMetric(this,'today')">Today</span><span class="toggle-tab" onclick="toggleMetric(this,'month')">Month</span></div></div>
+<div class="metric-card"><div class="metric-icon green">✅</div><div class="metric-label">Check-ins</div><div class="metric-value">38</div><span class="metric-change up">↑ 12% today</span></div>
+<div class="metric-card"><div class="metric-icon yellow">🚪</div><div class="metric-label">Check-outs</div><div class="metric-value">25</div><span class="metric-change up">↑ 8% today</span></div>
+<div class="metric-card"><div class="metric-icon green">💰</div><div class="metric-label">Total Revenue</div><div class="metric-value green">₹5,23,001</div><span class="metric-change up">↑ 15.4%</span></div>
+</div>
+<div class="grid-3">
+<div class="metric-card"><div class="metric-icon green">📊</div><div class="metric-label">Occupancy Rate</div><div class="metric-value green">75%</div></div>
+<div class="metric-card"><div class="metric-icon green">🛏️</div><div class="metric-label">Available Rooms</div><div class="metric-value">32</div></div>
+<div class="metric-card"><div class="metric-icon red">⏳</div><div class="metric-label">Pending Payments</div><div class="metric-value" style="color:var(--danger)">8</div></div>
+</div>
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Revenue Overview</span><div class="toggle-tabs"><span class="toggle-tab active">Monthly</span><span class="toggle-tab">Yearly</span></div></div><div class="chart-area"><canvas id="revenueChart" class="chart-canvas"></canvas></div></div>
+</div>
+
+<div class="dashboard-side">
+<div class="card" style="text-align:center"><div class="circular-progress"><svg width="150" height="150" viewBox="0 0 150 150"><circle class="progress-bg" cx="75" cy="75" r="60"/><circle class="progress-fill" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="94"/></svg><div class="progress-text"><div class="progress-value">75%</div><div class="progress-label">Occupancy</div></div></div></div>
+<div class="metric-card"><div class="metric-label">Revenue Today</div><div class="metric-value green">₹1,24,500</div><span class="metric-change up">↑ 22% vs yesterday</span></div>
+<div class="metric-card"><div class="metric-label">Avg. Stay Duration</div><div class="metric-value">2.8</div><span class="metric-change">nights</span></div>
+<div class="metric-card"><div class="metric-label">Guest Satisfaction</div><div class="metric-value green">4.6 ★</div></div>
+</div>
+</div>
+</section>
+
+<!-- ========== 2. BOOKINGS ========== -->
+<section class="page-section" id="page-bookings">
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('booking-modal')">➕ Create Booking</button><button class="btn" onclick="editBookingPrompt()">✏️ Edit Booking</button><button class="btn btn-danger" onclick="openModal('confirm-cancel-booking')">❌ Cancel Booking</button></div>
+
+<div class="table-container">
+<div class="table-header"><span class="table-title">All Bookings</span><div class="toggle-tabs"><span class="toggle-tab active">All</span><span class="toggle-tab">Today</span><span class="toggle-tab">Pending</span></div></div>
+<table><thead><tr><th>Booking ID</th><th>Guest</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Status</th><th>Amount</th><th>Actions</th></tr></thead>
+<tbody id="bookingsTableBody">
+<tr><td>#BK001</td><td>Rahul Sharma</td><td>101 - Deluxe</td><td>27 Feb 2026</td><td>01 Mar 2026</td><td><span class="badge badge-green">Confirmed</span></td><td>₹12,500</td><td class="table-actions"><button class="table-action-btn" onclick="editBooking('BK001')" title="Edit">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Cancel booking #BK001?','cancelBooking')" title="Cancel">❌</button></td></tr>
+<tr><td>#BK002</td><td>Priya Patel</td><td>205 - Suite</td><td>28 Feb 2026</td><td>03 Mar 2026</td><td><span class="badge badge-grey">Pending</span></td><td>₹28,000</td><td class="table-actions"><button class="table-action-btn" onclick="editBooking('BK002')" title="Edit">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Cancel booking #BK002?','cancelBooking')" title="Cancel">❌</button></td></tr>
+<tr><td>#BK003</td><td>Amit Kumar</td><td>302 - Standard</td><td>25 Feb 2026</td><td>27 Feb 2026</td><td><span class="badge badge-outline-green">Checked-in</span></td><td>₹6,000</td><td class="table-actions"><button class="table-action-btn" onclick="editBooking('BK003')" title="Edit">✏️</button></td></tr>
+<tr><td>#BK004</td><td>Sneha Reddy</td><td>108 - Deluxe</td><td>20 Feb 2026</td><td>24 Feb 2026</td><td><span class="badge badge-light">Checked-out</span></td><td>₹18,000</td><td class="table-actions"><button class="table-action-btn" onclick="editBooking('BK004')" title="Edit">✏️</button></td></tr>
+<tr><td>#BK005</td><td>Vikram Singh</td><td>410 - Suite</td><td>26 Feb 2026</td><td>28 Feb 2026</td><td><span class="badge badge-red">Cancelled</span></td><td>₹35,000</td><td class="table-actions"><button class="table-action-btn" onclick="editBooking('BK005')" title="Edit">✏️</button></td></tr>
+</tbody></table>
+</div>
+</section>
+
+<!-- ========== 3. ROOMS ========== -->
+<section class="page-section" id="page-rooms">
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('room-modal')">➕ Add Room</button><button class="btn" onclick="editRoomPrompt()">✏️ Edit Room</button><button class="btn btn-danger" onclick="openModal('confirm-delete-room')">🗑️ Delete Room</button></div>
+
+<div class="grid-auto" id="roomCardsGrid">
+<div class="room-card"><div class="room-image">🛏️</div><div class="room-info"><div class="room-number">Room 101</div><div class="room-category">Deluxe</div></div><div class="room-price">₹4,500 <span>/night</span></div><div class="room-footer"><span class="badge badge-green">Available</span><div class="table-actions"><button class="table-action-btn" onclick="editRoom('101')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete Room 101?','deleteRoom')">🗑️</button></div></div></div>
+<div class="room-card"><div class="room-image">🛏️</div><div class="room-info"><div class="room-number">Room 102</div><div class="room-category">Standard</div></div><div class="room-price">₹2,500 <span>/night</span></div><div class="room-footer"><span class="badge badge-grey">Occupied</span><div class="table-actions"><button class="table-action-btn" onclick="editRoom('102')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete Room 102?','deleteRoom')">🗑️</button></div></div></div>
+<div class="room-card"><div class="room-image">🛏️</div><div class="room-info"><div class="room-number">Room 205</div><div class="room-category">Suite</div></div><div class="room-price">₹8,000 <span>/night</span></div><div class="room-footer"><span class="badge badge-green">Available</span><div class="table-actions"><button class="table-action-btn" onclick="editRoom('205')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete Room 205?','deleteRoom')">🗑️</button></div></div></div>
+<div class="room-card"><div class="room-image">🛏️</div><div class="room-info"><div class="room-number">Room 302</div><div class="room-category">Standard</div></div><div class="room-price">₹2,500 <span>/night</span></div><div class="room-footer"><span class="badge badge-yellow">Maintenance</span><div class="table-actions"><button class="table-action-btn" onclick="editRoom('302')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete Room 302?','deleteRoom')">🗑️</button></div></div></div>
+<div class="room-card"><div class="room-image">🛏️</div><div class="room-info"><div class="room-number">Room 410</div><div class="room-category">Suite</div></div><div class="room-price">₹9,500 <span>/night</span></div><div class="room-footer"><span class="badge badge-red">Blocked</span><div class="table-actions"><button class="table-action-btn" onclick="editRoom('410')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete Room 410?','deleteRoom')">🗑️</button></div></div></div>
+<div class="room-card"><div class="room-image">🛏️</div><div class="room-info"><div class="room-number">Room 108</div><div class="room-category">Deluxe</div></div><div class="room-price">₹4,500 <span>/night</span></div><div class="room-footer"><span class="badge badge-grey">Occupied</span><div class="table-actions"><button class="table-action-btn" onclick="editRoom('108')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete Room 108?','deleteRoom')">🗑️</button></div></div></div>
+</div>
+</section>
+
+<!-- ========== 4. GUESTS ========== -->
+<section class="page-section" id="page-guests">
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('guest-modal')">➕ Add Guest</button><button class="btn" onclick="openModal('notes-modal')">📝 Add Notes</button><button class="btn btn-danger" onclick="openModal('confirm-blacklist')">🚫 Blacklist</button></div>
+
+<div class="grid-2">
+<div class="table-container">
+<div class="table-header"><span class="table-title">Guest Directory</span></div>
+<table><thead><tr><th>Name</th><th>Phone</th><th>Visits</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>Rahul Sharma</td><td>+91 98765 43210</td><td>5</td><td><span class="badge badge-gold">VIP</span></td><td class="table-actions"><button class="table-action-btn" onclick="editGuest('1')">✏️</button><button class="table-action-btn" onclick="viewGuestHistory('1')">👁️</button></td></tr>
+<tr><td>Priya Patel</td><td>+91 87654 32109</td><td>2</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editGuest('2')">✏️</button><button class="table-action-btn" onclick="viewGuestHistory('2')">👁️</button></td></tr>
+<tr><td>Amit Kumar</td><td>+91 76543 21098</td><td>1</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editGuest('3')">✏️</button><button class="table-action-btn" onclick="viewGuestHistory('3')">👁️</button></td></tr>
+<tr><td>Ravi Joshi</td><td>+91 65432 10987</td><td>0</td><td><span class="badge badge-red">Blacklisted</span></td><td class="table-actions"><button class="table-action-btn" onclick="editGuest('4')">✏️</button></td></tr>
+</tbody></table>
+</div>
+
+<div class="card" id="guestHistoryPanel">
+<h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Guest History</h3>
+<p style="color:var(--text-secondary);font-size:13px">Select a guest to view booking history.</p>
+<div id="guestHistoryContent"></div>
+</div>
+</div>
+</section>
+
+<!-- ========== 5. CHECK-IN / CHECK-OUT ========== -->
+<section class="page-section" id="page-checkin">
+<div class="grid-2">
+<div class="panel"><div class="panel-title"><span class="icon">✅</span> Check-In</div>
+<div class="form-group"><label class="form-label">Search Booking</label><input class="form-input" placeholder="Enter Booking ID or Guest Name"></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Auto Room Assignment</div><div class="toggle-desc">Automatically assign the best available room</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+<div class="form-group"><label class="form-label">Manual Room Selection</label><select class="form-input"><option>Select Room</option><option>101 - Deluxe (Available)</option><option>205 - Suite (Available)</option></select></div>
+<div class="btn-group mt-20"><button class="btn btn-accent" onclick="expressCheckin()">⚡ Express Check-in</button><button class="btn btn-accent" onclick="manualCheckin()">✅ Check-in</button></div>
+</div>
+
+<div class="panel"><div class="panel-title"><span class="icon">🚪</span> Check-Out</div>
+<div class="form-group"><label class="form-label">Search Guest / Room</label><input class="form-input" placeholder="Enter Room No. or Guest Name"></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Late Checkout</div><div class="toggle-desc">Apply late checkout surcharge</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+<div class="bill-display"><div class="bill-row"><span>Room Charges (3 nights)</span><span>₹13,500</span></div><div class="bill-row"><span>Room Service</span><span>₹2,400</span></div><div class="bill-row"><span>GST (18%)</span><span>₹2,862</span></div><div class="bill-row"><span>Total</span><span style="color:var(--accent)">₹18,762</span></div></div>
+<div class="btn-group mt-20"><button class="btn btn-accent" onclick="processCheckout()">🚪 Check-out</button><button class="btn" onclick="openModal('receipt-modal')">🧾 Print Receipt</button></div>
+</div>
+</div>
+</section>
+
+<!-- ========== 6. BILLING ========== -->
+<section class="page-section" id="page-billing">
+<div class="grid-4 mb-20">
+<div class="metric-card"><div class="metric-icon green">💰</div><div class="metric-label">Total Revenue</div><div class="metric-value green">₹5,23,001</div></div>
+<div class="metric-card"><div class="metric-icon red">⏳</div><div class="metric-label">Pending Payments</div><div class="metric-value" style="color:var(--danger)">₹45,200</div></div>
+<div class="metric-card"><div class="metric-icon yellow">🔄</div><div class="metric-label">Refunds Issued</div><div class="metric-value">₹12,000</div></div>
+<div class="metric-card"><div class="metric-icon green">📅</div><div class="metric-label">Today's Collection</div><div class="metric-value green">₹1,24,500</div></div>
+</div>
+
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('invoice-modal')">🧾 Create Invoice</button></div>
+
+<div class="table-container">
+<div class="table-header"><span class="table-title">Invoices</span></div>
+<table><thead><tr><th>Invoice #</th><th>Guest</th><th>Room</th><th>Amount</th><th>Tax</th><th>Discount</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>#INV001</td><td>Rahul Sharma</td><td>101</td><td>₹12,500</td><td>₹2,250</td><td>₹0</td><td>₹14,750</td><td><span class="badge badge-green">Paid</span></td><td class="table-actions"><button class="table-action-btn" title="View">👁️</button></td></tr>
+<tr><td>#INV002</td><td>Priya Patel</td><td>205</td><td>₹28,000</td><td>₹5,040</td><td>₹2,000</td><td>₹31,040</td><td><span class="badge badge-grey">Pending</span></td><td class="table-actions"><button class="table-action-btn" title="View">👁️</button></td></tr>
+<tr><td>#INV003</td><td>Amit Kumar</td><td>302</td><td>₹6,000</td><td>₹1,080</td><td>₹500</td><td>₹6,580</td><td><span class="badge badge-yellow">Partial</span></td><td class="table-actions"><button class="table-action-btn" title="View">👁️</button></td></tr>
+<tr><td>#INV004</td><td>Sneha Reddy</td><td>108</td><td>₹18,000</td><td>₹3,240</td><td>₹0</td><td>₹21,240</td><td><span class="badge badge-red">Refunded</span></td><td class="table-actions"><button class="table-action-btn" title="View">👁️</button></td></tr>
+</tbody></table>
+</div>
+</section>
+
+<!-- ========== 7. REPORTS ========== -->
+<section class="page-section" id="page-reports">
+<div class="btn-group"><button class="btn btn-accent" onclick="confirmAction('Export all reports as PDF?','exportPDF')">📄 Export as PDF</button><button class="btn btn-accent" onclick="confirmAction('Export all reports as Excel?','exportExcel')">📊 Export as Excel</button></div>
+<div class="grid-3 mb-20">
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Daily Revenue</span></div><div class="chart-area"><canvas id="dailyRevenueChart" class="chart-canvas"></canvas></div></div>
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Monthly Revenue</span></div><div class="chart-area"><canvas id="monthlyRevenueChart" class="chart-canvas"></canvas></div></div>
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Occupancy Report</span></div><div class="chart-area" style="display:flex;align-items:center;justify-content:center"><div class="circular-progress"><svg width="150" height="150" viewBox="0 0 150 150"><circle class="progress-bg" cx="75" cy="75" r="60"/><circle class="progress-fill" cx="75" cy="75" r="60" stroke-dasharray="377" stroke-dashoffset="94"/></svg><div class="progress-text"><div class="progress-value">75%</div><div class="progress-label">Occupied</div></div></div></div></div>
+</div>
+<div class="grid-3">
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Booking Report</span></div><div class="chart-area"><canvas id="bookingReportChart" class="chart-canvas"></canvas></div></div>
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Payment Report</span></div><div class="chart-area"><canvas id="paymentReportChart" class="chart-canvas"></canvas></div></div>
+<div class="chart-container"><div class="chart-header"><span class="chart-title">Tax Report</span></div><div class="chart-area"><canvas id="taxReportChart" class="chart-canvas"></canvas></div></div>
+</div>
+</section>
+
+<!-- ========== 8. STAFF ========== -->
+<section class="page-section" id="page-staff">
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('staff-modal')">➕ Add Staff</button></div>
+<div class="grid-2">
+<div class="table-container">
+<div class="table-header"><span class="table-title">Staff Members</span></div>
+<table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>Admin User</td><td><span class="badge badge-green">Admin</span></td><td>admin@bookeasy.com</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editStaff('1')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Remove this staff member?','deleteStaff')">🗑️</button></td></tr>
+<tr><td>Suresh Manager</td><td><span class="badge badge-grey">Manager</span></td><td>suresh@bookeasy.com</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editStaff('2')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Remove this staff member?','deleteStaff')">🗑️</button></td></tr>
+<tr><td>Meena Reception</td><td><span class="badge badge-outline-dark">Reception</span></td><td>meena@bookeasy.com</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editStaff('3')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Remove this staff member?','deleteStaff')">🗑️</button></td></tr>
+</tbody></table>
+</div>
+<div class="card"><h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Activity Logs</h3>
+<div class="activity-log">
+<div class="log-entry"><div class="log-dot"></div><div class="log-text">Admin User created booking #BK005</div><div class="log-time">10 min ago</div></div>
+<div class="log-entry"><div class="log-dot"></div><div class="log-text">Suresh Manager updated Room 302 status</div><div class="log-time">25 min ago</div></div>
+<div class="log-entry"><div class="log-dot"></div><div class="log-text">Meena processed check-in for Amit Kumar</div><div class="log-time">1 hr ago</div></div>
+<div class="log-entry"><div class="log-dot"></div><div class="log-text">Admin User generated Invoice #INV004</div><div class="log-time">2 hr ago</div></div>
+<div class="log-entry"><div class="log-dot"></div><div class="log-text">Suresh Manager added guest Ravi Joshi</div><div class="log-time">3 hr ago</div></div>
+</div></div>
+</div>
+</section>
+
+<!-- ========== 9. INVENTORY ========== -->
+<section class="page-section" id="page-inventory">
+<div class="btn-group"><button class="btn btn-accent" onclick="openModal('service-modal')">➕ Add Service</button></div>
+<div class="table-container">
+<div class="table-header"><span class="table-title">Hotel Services & Inventory</span></div>
+<table><thead><tr><th>Item</th><th>Category</th><th>Quantity</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody>
+<tr><td>Bed Sheets</td><td>Linen</td><td>150</td><td>₹500</td><td><span class="badge badge-green">Normal</span></td><td class="table-actions"><button class="table-action-btn" onclick="editService('1')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete this item?','deleteService')">🗑️</button></td></tr>
+<tr><td>Towels</td><td>Linen</td><td>8</td><td>₹200</td><td><span class="badge badge-red">Low Stock</span></td><td class="table-actions"><button class="table-action-btn" onclick="editService('2')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete this item?','deleteService')">🗑️</button></td></tr>
+<tr><td>Laundry Service</td><td>Service</td><td>—</td><td>₹300/kg</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editService('3')">✏️</button></td></tr>
+<tr><td>Room Service (Food)</td><td>Service</td><td>—</td><td>Varies</td><td><span class="badge badge-green">Active</span></td><td class="table-actions"><button class="table-action-btn" onclick="editService('4')">✏️</button></td></tr>
+<tr><td>Extra Bed</td><td>Amenity</td><td>20</td><td>₹800/night</td><td><span class="badge badge-green">Normal</span></td><td class="table-actions"><button class="table-action-btn" onclick="editService('5')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete this item?','deleteService')">🗑️</button></td></tr>
+<tr><td>Toiletries Kit</td><td>Amenity</td><td>5</td><td>₹150</td><td><span class="badge badge-red">Low Stock</span></td><td class="table-actions"><button class="table-action-btn" onclick="editService('6')">✏️</button><button class="table-action-btn danger" onclick="confirmAction('Delete this item?','deleteService')">🗑️</button></td></tr>
+</tbody></table>
+</div>
+</section>
+
+<!-- ========== 10. NOTIFICATIONS ========== -->
+<section class="page-section" id="page-notifications">
+<div class="flex-col gap-sm">
+<div class="notification-card"><div class="notification-info"><div class="notification-icon-box">💬</div><div class="notification-text"><h4>SMS Booking Confirmation</h4><p>Send SMS to guests when a booking is confirmed</p></div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+<div class="notification-card"><div class="notification-info"><div class="notification-icon-box">📧</div><div class="notification-text"><h4>Email Confirmation</h4><p>Send email confirmation with booking details</p></div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+<div class="notification-card"><div class="notification-info"><div class="notification-icon-box">💳</div><div class="notification-text"><h4>Payment Reminder</h4><p>Remind guests about pending payments</p></div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+<div class="notification-card"><div class="notification-info"><div class="notification-icon-box">🚪</div><div class="notification-text"><h4>Check-out Reminder</h4><p>Notify guests about upcoming checkout time</p></div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+</div>
+</section>
+
+<!-- ========== 11. SETTINGS ========== -->
+<section class="page-section" id="page-settings">
+<div class="settings-section"><div class="settings-section-title">Hotel Profile</div>
+<div class="form-row"><div class="form-group"><label class="form-label">Hotel Name</label><input class="form-input" value="BookEasy Grand Hotel"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="+91 98765 00000"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Email</label><input class="form-input" value="info@bookeasy.com"></div><div class="form-group"><label class="form-label">Address</label><input class="form-input" value="123 Hotel Street, Mumbai, India"></div></div></div>
+
+<div class="settings-section"><div class="settings-section-title">Logo Upload</div><div class="upload-area" onclick="document.getElementById('logoUpload').click()"><div class="upload-icon">📤</div><p>Click to upload hotel logo<br><small>PNG, JPG up to 5MB</small></p><input type="file" id="logoUpload" accept="image/*" style="display:none"></div></div>
+
+<div class="settings-section"><div class="settings-section-title">Tax Settings</div>
+<div class="form-row"><div class="form-group"><label class="form-label">GST (%)</label><input class="form-input" type="number" value="18"></div><div class="form-group"><label class="form-label">Service Tax (%)</label><input class="form-input" type="number" value="5"></div></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Apply tax to all invoices</div><div class="toggle-desc">Automatically apply taxes when generating invoices</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div></div>
+
+<div class="settings-section"><div class="settings-section-title">Currency Settings</div><div class="form-group"><label class="form-label">Currency</label><select class="form-input"><option selected>INR (₹) — Indian Rupee</option><option>USD ($) — US Dollar</option><option>EUR (€) — Euro</option><option>GBP (£) — British Pound</option></select></div></div>
+
+<div class="settings-section"><div class="settings-section-title">Invoice Template Preview</div><div class="invoice-preview"><div style="text-align:center;margin-bottom:20px"><strong style="font-size:18px">BookEasy Grand Hotel</strong><br><small style="color:var(--text-secondary)">123 Hotel Street, Mumbai, India</small></div><div class="bill-row"><span>Room Charges</span><span>₹XX,XXX</span></div><div class="bill-row"><span>Services</span><span>₹X,XXX</span></div><div class="bill-row"><span>GST (18%)</span><span>₹X,XXX</span></div><div class="bill-row"><span>Discount</span><span>-₹XXX</span></div><div class="bill-row"><span><strong>Total</strong></span><span><strong>₹XX,XXX</strong></span></div></div></div>
+
+<button class="btn btn-accent" onclick="showToast('Settings saved successfully!','success')" style="margin-top:8px">💾 Save Settings</button>
+</section>
+
+</div><!-- end .content -->
+</div><!-- end .main -->
+</div><!-- end .app -->
+
+<!-- ============ MODALS ============ -->
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="booking-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Create / Edit Booking</span><button class="modal-close" onclick="closeModal('booking-modal')">✕</button></div><div class="modal-body">
+<div class="form-row"><div class="form-group"><label class="form-label">Guest</label><select class="form-input" id="bookingGuest"><option>Select Guest</option><option>Rahul Sharma</option><option>Priya Patel</option><option>Amit Kumar</option><option>Sneha Reddy</option></select></div><div class="form-group"><label class="form-label">Room</label><select class="form-input" id="bookingRoom"><option>Select Room</option><option>101 - Deluxe</option><option>205 - Suite</option><option>302 - Standard</option></select></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Check-in Date</label><input class="form-input" type="date" id="bookingCheckin"></div><div class="form-group"><label class="form-label">Check-out Date</label><input class="form-input" type="date" id="bookingCheckout"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Booking Type</label><div style="display:flex;gap:16px;margin-top:6px"><label class="form-check"><input type="radio" name="bookType" value="single" checked> Single Room</label><label class="form-check"><input type="radio" name="bookType" value="multiple"> Multiple Rooms</label></div></div><div class="form-group"><label class="form-label">Status</label><select class="form-input" id="bookingStatus"><option>Pending</option><option>Confirmed</option></select></div></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Group Booking</div><div class="toggle-desc">Enable for multiple rooms under one booking</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+<div class="form-group"><label class="form-label">Advance Payment (₹)</label><input class="form-input" type="number" placeholder="0" id="bookingAdvance"></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('booking-modal')">Cancel</button><button class="btn btn-accent" onclick="submitBooking()">💾 Save Booking</button><button class="btn btn-accent" onclick="generateInvoice()">🧾 Generate Invoice</button></div></div></div>
+
+<!-- ROOM MODAL -->
+<div class="modal-overlay" id="room-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Add / Edit Room</span><button class="modal-close" onclick="closeModal('room-modal')">✕</button></div><div class="modal-body">
+<div class="form-row"><div class="form-group"><label class="form-label">Room Number</label><input class="form-input" placeholder="e.g. 101" id="roomNumber"></div><div class="form-group"><label class="form-label">Category</label><select class="form-input" id="roomCategory"><option>Standard</option><option>Deluxe</option><option>Suite</option></select></div></div>
+<div class="form-group"><label class="form-label">Price Per Night (₹)</label><input class="form-input" type="number" placeholder="0" id="roomPrice"></div>
+<div class="form-group"><label class="form-label">Room Image</label><div class="file-upload" onclick="document.getElementById('roomImageUpload').click()"><div>📷</div><div class="upload-text">Click to upload image</div><input type="file" id="roomImageUpload" accept="image/*" style="display:none"></div></div>
+<div class="form-group"><label class="form-label">Amenities</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><label class="form-check"><input type="checkbox" checked> WiFi</label><label class="form-check"><input type="checkbox" checked> AC</label><label class="form-check"><input type="checkbox" checked> TV</label><label class="form-check"><input type="checkbox"> Mini Bar</label><label class="form-check"><input type="checkbox"> Balcony</label><label class="form-check"><input type="checkbox" checked> Room Service</label></div></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('room-modal')">Cancel</button><button class="btn btn-accent" onclick="submitRoom()">💾 Save Room</button></div></div></div>
+
+<!-- GUEST MODAL -->
+<div class="modal-overlay" id="guest-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Add / Edit Guest</span><button class="modal-close" onclick="closeModal('guest-modal')">✕</button></div><div class="modal-body">
+<div class="form-row"><div class="form-group"><label class="form-label">Full Name</label><input class="form-input" placeholder="Guest name" id="guestName"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="email@example.com" id="guestEmail"></div></div>
+<div class="form-group"><label class="form-label">Phone</label><input class="form-input" placeholder="+91 XXXXX XXXXX" id="guestPhone"></div>
+<div class="form-group"><label class="form-label">ID Proof Upload</label><div class="file-upload" onclick="document.getElementById('idUpload').click()"><div>📎</div><div class="upload-text">Click to upload ID proof</div><input type="file" id="idUpload" accept="image/*,.pdf" style="display:none"></div></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Frequent Guest</div><div class="toggle-desc">Mark as VIP / frequent visitor</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Blacklist</div><div class="toggle-desc">Block this guest from future bookings</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('guest-modal')">Cancel</button><button class="btn btn-accent" onclick="submitGuest()">💾 Save Guest</button></div></div></div>
+
+<!-- NOTES MODAL -->
+<div class="modal-overlay" id="notes-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Add Guest Notes</span><button class="modal-close" onclick="closeModal('notes-modal')">✕</button></div><div class="modal-body">
+<div class="form-group"><label class="form-label">Select Guest</label><select class="form-input"><option>Rahul Sharma</option><option>Priya Patel</option><option>Amit Kumar</option></select></div>
+<div class="form-group"><label class="form-label">Notes</label><textarea class="form-input" rows="5" placeholder="Add notes about this guest..."></textarea></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('notes-modal')">Cancel</button><button class="btn btn-accent" onclick="submitNotes()">💾 Save Notes</button></div></div></div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="receipt-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Receipt Preview</span><button class="modal-close" onclick="closeModal('receipt-modal')">✕</button></div><div class="modal-body">
+<div style="text-align:center;margin-bottom:20px"><strong style="font-size:18px">BookEasy Grand Hotel</strong><br><small style="color:var(--text-secondary)">123 Hotel Street, Mumbai, India</small><br><small style="color:var(--text-secondary)">Tel: +91 98765 00000</small></div>
+<div style="border-top:1px dashed #ccc;margin:12px 0"></div>
+<div class="bill-row"><span>Guest:</span><span>Amit Kumar</span></div>
+<div class="bill-row"><span>Room:</span><span>302 - Standard</span></div>
+<div class="bill-row"><span>Check-in:</span><span>25 Feb 2026</span></div>
+<div class="bill-row"><span>Check-out:</span><span>27 Feb 2026</span></div>
+<div style="border-top:1px dashed #ccc;margin:12px 0"></div>
+<div class="bill-row"><span>Room Charges (2 nights)</span><span>₹5,000</span></div>
+<div class="bill-row"><span>Room Service</span><span>₹800</span></div>
+<div class="bill-row"><span>GST (18%)</span><span>₹1,044</span></div>
+<div class="bill-row"><span><strong>Total</strong></span><span style="color:var(--accent)"><strong>₹6,844</strong></span></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('receipt-modal')">Close</button><button class="btn btn-accent" onclick="printReceipt()">🖨️ Print</button></div></div></div>
+
+<!-- INVOICE MODAL -->
+<div class="modal-overlay" id="invoice-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Create Invoice</span><button class="modal-close" onclick="closeModal('invoice-modal')">✕</button></div><div class="modal-body">
+<div class="form-row"><div class="form-group"><label class="form-label">Guest</label><select class="form-input"><option>Select Guest</option><option>Rahul Sharma</option><option>Priya Patel</option><option>Amit Kumar</option></select></div><div class="form-group"><label class="form-label">Room</label><select class="form-input"><option>101 - Deluxe</option><option>205 - Suite</option><option>302 - Standard</option></select></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Nights</label><input class="form-input" type="number" value="2"></div><div class="form-group"><label class="form-label">Base Amount (₹)</label><input class="form-input" type="number" value="5000"></div></div>
+<div class="form-row"><div class="form-group"><label class="form-label">GST (18%)</label><input class="form-input" type="number" value="1800" readonly style="opacity:0.7"></div><div class="form-group"><label class="form-label">Discount (₹)</label><input class="form-input" type="number" value="0"></div></div>
+<div class="form-group"><label class="form-label">Payment Method</label><div class="payment-methods"><div class="payment-option selected" onclick="selectPayment(this)">💵 Cash</div><div class="payment-option" onclick="selectPayment(this)">💳 Card</div><div class="payment-option" onclick="selectPayment(this)">📱 UPI</div><div class="payment-option" onclick="selectPayment(this)">🏦 Bank Transfer</div></div></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Partial Payment</div><div class="toggle-desc">Guest will pay remaining amount later</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+<div class="form-group"><label class="form-label">Advance Paid (₹)</label><input class="form-input" type="number" value="0"></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Process Refund</div><div class="toggle-desc">Issue refund for this invoice</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('invoice-modal')">Cancel</button><button class="btn btn-accent" onclick="submitInvoice()">🧾 Generate Invoice</button></div></div></div>
+
+<!-- STAFF MODAL -->
+<div class="modal-overlay" id="staff-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Add / Edit Staff</span><button class="modal-close" onclick="closeModal('staff-modal')">✕</button></div><div class="modal-body">
+<div class="form-row"><div class="form-group"><label class="form-label">Full Name</label><input class="form-input" placeholder="Staff name" id="staffName"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="email@bookeasy.com" id="staffEmail"></div></div>
+<div class="form-group"><label class="form-label">Phone</label><input class="form-input" placeholder="+91 XXXXX XXXXX" id="staffPhone"></div>
+<div class="form-group"><label class="form-label">Role</label><select class="form-input" id="staffRole"><option>Admin</option><option>Manager</option><option>Reception</option></select></div>
+<div style="margin-top:8px"><div class="form-label" style="margin-bottom:10px">Access Control</div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Bookings</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Billing</div></div><label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Reports</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+<div class="toggle-row"><div class="toggle-info"><div class="toggle-title">Settings</div></div><label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+</div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('staff-modal')">Cancel</button><button class="btn btn-accent" onclick="submitStaff()">💾 Save Staff</button></div></div></div>
+
+<!-- SERVICE MODAL -->
+<div class="modal-overlay" id="service-modal"><div class="modal"><div class="modal-header"><span class="modal-title">Add / Edit Service</span><button class="modal-close" onclick="closeModal('service-modal')">✕</button></div><div class="modal-body">
+<div class="form-group"><label class="form-label">Service / Item Name</label><select class="form-input" id="serviceName"><option>Laundry</option><option>Food / Room Service</option><option>Extra Bed</option><option>Custom</option></select></div>
+<div class="form-row"><div class="form-group"><label class="form-label">Price (₹)</label><input class="form-input" type="number" placeholder="0" id="servicePrice"></div><div class="form-group"><label class="form-label">Quantity</label><input class="form-input" type="number" placeholder="0" id="serviceQty"></div></div>
+</div><div class="modal-footer"><button class="btn" onclick="closeModal('service-modal')">Cancel</button><button class="btn btn-accent" onclick="submitService()">💾 Save</button></div></div></div>
+
+<!-- CONFIRM POPUP -->
+<div class="modal-overlay confirm-popup" id="confirm-popup"><div class="modal" style="max-width:420px"><div class="modal-body" style="padding:36px 28px;text-align:center">
+<div class="confirm-icon warning">⚠️</div>
+<div class="confirm-title" id="confirmTitle">Are you sure?</div>
+<div class="confirm-text" id="confirmText">This action cannot be undone.</div>
+<div class="confirm-actions"><button class="btn" onclick="closeModal('confirm-popup')">Cancel</button><button class="btn btn-accent" id="confirmBtn" onclick="confirmYes()">Confirm</button></div>
+</div></div></div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
